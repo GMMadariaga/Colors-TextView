@@ -91,9 +91,15 @@ input:focus {
     cursor: pointer;
     transition: transform 0.2s;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    gap: 10px;
+    margin: 10px 0;
+    gap: 15px;
 }
 
+.color-pair {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 .colorItem:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -119,6 +125,14 @@ input:focus {
     font-family: monospace;
     color: #e0e0e0;
     min-width: 100px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.complementary-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .output-text {

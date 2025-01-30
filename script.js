@@ -8,11 +8,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const exportBtn = document.getElementById('exportBtn');
     const complementaryBtn = document.getElementById('complementaryBtn');
 
+    let showComplementary = false; 
+
     const colorPatterns = {
         hex: /#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})\b/g,
-        rgb: /rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g,
-        rgba: /rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*([01]\.?\d*)\s*\)/g,
-        hsl: /hsl\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*\)/g
+        rgb: /rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)/g
     };
 
     function extractColors(text) {
@@ -65,6 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const colorItem = document.createElement('div');
             colorItem.className = 'colorItem';
 
+            // Contenedor para el color original y su texto
+            const originalContainer = document.createElement('div');
+            originalContainer.className = 'color-pair';
+
             const colorBox = document.createElement('div');
             colorBox.className = 'colorBox';
             const hexColor = colorToHex(color);
@@ -74,27 +78,35 @@ document.addEventListener('DOMContentLoaded', () => {
             colorText.className = 'colorText';
             colorText.textContent = hexColor;
 
+            originalContainer.appendChild(colorBox);
+            originalContainer.appendChild(colorText);
+
+            // Contenedor para el color complementario y su texto
+            const complementaryContainer = document.createElement('div');
+            complementaryContainer.className = 'color-pair complementary-container';
+            complementaryContainer.style.display = showComplementary ? 'flex' : 'none';
+
             const complementaryBox = document.createElement('div');
             complementaryBox.className = 'colorBox complementary';
             const complementaryColor = getComplementaryColor(hexColor);
             complementaryBox.style.backgroundColor = complementaryColor;
-            complementaryBox.style.display = 'none';
+
+            const complementaryText = document.createElement('span');
+            complementaryText.className = 'colorText';
+            complementaryText.textContent = complementaryColor;
+
+            complementaryContainer.appendChild(complementaryBox);
+            complementaryContainer.appendChild(complementaryText);
 
             colorItem.addEventListener('click', () => {
                 navigator.clipboard.writeText(hexColor);
                 alert(`Copied ${hexColor} to clipboard!`);
             });
 
-            colorItem.appendChild(colorBox);
-            colorItem.appendChild(colorText);
-            colorItem.appendChild(complementaryBox);
+            colorItem.appendChild(originalContainer);
+            colorItem.appendChild(complementaryContainer);
             colorsContainer.appendChild(colorItem);
         });
-    }
-
-    function getCurrentColors() {
-        const colorBoxes = document.querySelectorAll('.colorBox:not(.complementary)');
-        return Array.from(colorBoxes).map(box => box.style.backgroundColor);
     }
 
     function analyze() {
@@ -109,56 +121,8 @@ document.addEventListener('DOMContentLoaded', () => {
         outputText.textContent = 'No colors detected yet';
     }
 
-    function savePalette() {
-        const colors = getCurrentColors();
-        if (colors.length === 0) {
-            alert('No colors to save!');
-            return;
-        }
-        const palettes = JSON.parse(localStorage.getItem('palettes') || '[]');
-        palettes.push(colors);
-        localStorage.setItem('palettes', JSON.stringify(palettes));
-        displaySavedPalettes();
-    }
-
-    function displaySavedPalettes() {
-        const palettesList = document.getElementById('palettesList');
-        const palettes = JSON.parse(localStorage.getItem('palettes') || '[]');
-
-        palettesList.innerHTML = '';
-        palettes.forEach((palette, index) => {
-            const div = document.createElement('div');
-            div.className = 'palette-item';
-
-            const colorsDiv = document.createElement('div');
-            colorsDiv.className = 'palette-colors';
-
-            palette.forEach(color => {
-                const colorBox = document.createElement('div');
-                colorBox.className = 'color-box';
-                colorBox.style.backgroundColor = color;
-                colorsDiv.appendChild(colorBox);
-            });
-
-            const deleteBtn = document.createElement('button');
-            deleteBtn.textContent = 'Delete';
-            deleteBtn.onclick = () => deletePalette(index);
-
-            div.appendChild(colorsDiv);
-            div.appendChild(deleteBtn);
-            palettesList.appendChild(div);
-        });
-    }
-
-    function deletePalette(index) {
-        const palettes = JSON.parse(localStorage.getItem('palettes') || '[]');
-        palettes.splice(index, 1);
-        localStorage.setItem('palettes', JSON.stringify(palettes));
-        displaySavedPalettes();
-    }
-
     function exportPalette() {
-        const colors = getCurrentColors();
+        const colors = Array.from(document.querySelectorAll('.colorBox:not(.complementary)')).map(box => box.style.backgroundColor);
         if (colors.length === 0) {
             alert('No colors to export!');
             return;
@@ -169,9 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     complementaryBtn.addEventListener('click', () => {
-        const colorBoxes = document.querySelectorAll('.complementary');
-        colorBoxes.forEach(box => {
-            box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        showComplementary = !showComplementary;
+        document.querySelectorAll('.complementary-container').forEach(container => {
+            container.style.display = showComplementary ? 'flex' : 'none';
         });
     });
 
@@ -180,8 +144,5 @@ document.addEventListener('DOMContentLoaded', () => {
     inputText.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') analyze();
     });
-    saveBtn.addEventListener('click', savePalette);
     exportBtn.addEventListener('click', exportPalette);
-
-    displaySavedPalettes();
 });
