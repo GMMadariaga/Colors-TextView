@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Enhanced Color Text Viewer</title>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Color Text Viewer</h1>
+        <div class="input-section">
+            <div class="inputContainer">
+                <input type="text" 
+                       id="inputText" 
+                       placeholder="Enter colors (hex, rgb, hsl). Example: #ff0000 or rgb(255,0,0)">
+                <button class="clearButton" id="clearBtn">×</button>
+            </div>
+            <button class="analyze-btn" id="analyzeBtn">Analyze Colors</button>
+        </div>
+        <p id="outputText" class="output-text">No colors detected yet</p>
+        <div id="colorsContainer" class="colors-grid"></div>
+    </div>
+</body>
+</html>
